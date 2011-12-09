@@ -1,0 +1,102 @@
+kisheat.py generates Google Earth overlay images and kml files
+that depict your geo-located kismet output as a temperature-like
+map when loaded into Google Earth.
+
+INSTALLATION
+
+In addition to a recent-ish python, you'll need to have the python imaging
+library  (PIL) installed.  On Ubuntu flavored distros that's
+
+sudo apt-get install python-imaging
+
+
+Install the heatmap library next:
+
+cd heatmap-1.0-kisheatpatch
+sudo python setup.py install
+
+
+Then copy kisheat.py to somewhere on your path of you so desire:
+
+cp kisheat.py /usr/local/bin
+
+
+
+USAGE
+
+kisheat.py <[path to]Kismet-output-fileset> [essid pattern]
+
+Only the first parameter is required.  It is not a full path of
+any given file, but rather enough information to let kisheat 
+know which dataset it will be working with.
+
+Example:
+
+Assuming that you have
+
+Kismet-20111207-14-41-18-1.alert
+Kismet-20111207-14-41-18-1.gpsxml
+Kismet-20111207-14-41-18-1.nettxt
+Kismet-20111207-14-41-18-1.netxml
+Kismet-20111207-14-41-18-1.pcapdump
+
+
+in /var/log/kismet/, you would do something like this:
+
+mkdir output_folder
+cd output_folder
+kisheat.py /var/log/kismet/Kismet-20111207-14-41-18-1
+
+Note: no file extension!  kisheat reads the  .netxml and
+.gpsxml files by adding the appropriate suffix itself.
+
+
+You can optionally give kisheat a regular expression to use
+in deciding which networks to render.  If you do not 
+provide one, all networks will be rendered.   The pattern 
+can be any valid python re pattern, and will be used in the
+"search" function.
+
+
+kisheat has only a few options:
+
+  -h, --help     show this help message and exit
+  -l, --list     Just list xSSIDs and exit
+  -a, --alldata  Include all samples taken while not moving (can exagerate
+                 signal strength)
+
+
+--list does what it says - it doesn't generate anything - just dumps SSIDs to stdout
+
+--alldata requires some explanation:
+
+The heat map rendering logic will treat repetitive mentions of the same location as an
+indication that the value for that location is higher.  In practical terms this means
+that if you happened to have stopped at a stop sign for a bit and you include all data
+gathered there, the position at that stop sign will look like it's getting quite a lot
+more signal that it really is.  So the default logic ensures that no more than
+one sample is used for any given lat/lon position by selecting the first sample for 
+a given point and discarding the rest.  This does *not* totally eliminate the
+exaggeration effect as gps values have jitter, but it does substantially reduce it.  If you 
+use the --alldata switch you disable this logic, making it likely that you will see
+this effect quite prominently.
+
+
+
+DETAILS PROBABLY WORTH KNOWING
+
+
+This thing is ***SLOW***!!  If you have a really large sample, kisheat will keep your
+computer busy for quite a long time.  Just let it run - the lack of verbosity 
+helps speed things up.
+
+The version of heatmap.py that kisheat uses is not pristine:  The original author 
+provided a patch to it in a forum posting that allows heatmap.py to consider
+weight values tied to geo-points as an indication of the "strength" of the point
+as opposed to soully assuming that the number of points in a given location is 
+reflective of the "strength" of that location.  The version of heatmap.py 
+included here has that patch applied as well as a few other tweaks.
+
+Note that the patched version's logic remains sensitive to repetition of
+geo points - see the --alldata switch documentation for details.
+

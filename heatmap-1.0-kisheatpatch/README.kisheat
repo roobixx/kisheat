@@ -1,0 +1,5 @@
+This version of heatmap.py includes some modifications to the original version to wit:
+
+1) A patch by the original author to support weighted data points was applied
+2) Logic to automatically calculate overlay image size was restored
+3) Some output verbosity was removed
