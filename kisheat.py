@@ -69,15 +69,15 @@ else:
 				if essidRE.search(networks[dict['bssid']]):
 					if dict['bssid'] not in accesspoints:
 						accesspoints[dict['bssid']] = list()
-					# The heat map rendering logic will treat repetitive mentions of the same location as an
-					# indication that the value for that location is higher.  In practical terms this means
+					# The heat map rendering logic will treat repetitive mentions of the same location
+					# as an indication that the value for that location is higher.  In practical terms this means
 					# that if you happened to have stopped at a stop sign for a bit and you include all data
 					# gathered there, the position at that stop sign will look like it's getting quite a lot
 					# more signal that it really is.  So this logic just ensures that we have no more than
-					# one sample for any given lat/lon position.  This does *not* totally eliminate the
-					# exaggeration effect as gps values have jitter, but it does substantially reduce it.
+					# one sample for any given lat/lon position for a particular bssid.  This does *not* totally
+					# eliminate the exaggeration effect as gps values have jitter, but it does substantially reduce it.
 					if not options.allData:
-						location = '%(lon)f,%(lat)f' % {"lon": float(dict['lon']), "lat": float(dict['lat'])}
+						location = '%(bssid)s,%(lon)f,%(lat)f' % {"bssid": dict['bssid'], "lon": float(dict['lon']), "lat": float(dict['lat'])}
 						if location in locations:
 							locations[location]+=1
 						else:
