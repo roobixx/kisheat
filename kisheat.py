@@ -92,4 +92,6 @@ else:
 			hm.heatmap(accesspoints[key],'%s.png'%key)
 		except ZeroDivisionError:
 			print "Error generating map overlay - data sample too small"
+		except IndexError:
+			print "Error generating map overlay - data sample too small"
 		hm.saveKML('%s.kml'%networks[key])
