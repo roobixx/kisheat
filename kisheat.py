@@ -20,7 +20,7 @@ usage = "usage: [options] [path/to/]SAMPLE_NAME [ESSID PATTERN]"
 parser = OptionParser(usage=usage)
 parser.add_option('-l', '--list',help='Just list xSSIDs and exit',dest='listOnly',default=False,action='store_true')
 parser.add_option('-a', '--alldata',help='Include all samples taken while not moving (can exagerate signal strength)',dest='allData',default=False,action='store_true')
-parser.add_option('-m','--mergedata',help='Merge all datasets into one overlay whose name you must specify.  If you use a regex filter the merged data will be restricted to accesspoints that matched it. Useful for mapping whole-network coverage.',dest='mergeTo',default=None,action='store',type='string')
+parser.add_option('-m','--mergedata',help='Merge all datasets into one overlay whose name you must specify.  If you use a regex filter the merged data will be restricted to accesspoints that matched it. Useful for mapping whole-network coverage mapping.',dest='mergeTo',default=None,action='store',type='string')
 
 (options, args) = parser.parse_args()
 
