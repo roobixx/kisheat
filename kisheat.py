@@ -20,6 +20,7 @@ usage = "usage: [options] [path/to/]SAMPLE_NAME [ESSID PATTERN]"
 parser = OptionParser(usage=usage)
 parser.add_option('-l', '--list',help='Just list xSSIDs and exit',dest='listOnly',default=False,action='store_true')
 parser.add_option('-a', '--alldata',help='Include all samples taken while not moving (can exagerate signal strength)',dest='allData',default=False,action='store_true')
+parser.add_option('-m','--mergedata',help='Merge all datasets into one overlay whose name you must specify.  If you use a regex filter the merged data will be restricted to accesspoints that matched it. Useful for mapping whole-network coverage.',dest='mergeTo',default=None,action='store',type='string')
 
 (options, args) = parser.parse_args()
 
@@ -52,6 +53,8 @@ for network in tree.getroot().findall('wireless-network'):
 	else:
 		networks[bssid] = 'cloaked(%s)'%bssid
 
+if options.mergeTo is not None:
+	accesspoints[options.mergeTo] = list()
 
 if options.listOnly:
 	for bssid,essid in networks.items():
@@ -67,7 +70,7 @@ else:
 			dict = collections.defaultdict(default_factory,map(splitup,line.split()))
 			if dict['bssid'] != 0 and dict['bssid'] in networks:
 				if essidRE.search(networks[dict['bssid']]):
-					if dict['bssid'] not in accesspoints:
+					if (dict['bssid'] not in accesspoints) and (options.mergeTo is None):
 						accesspoints[dict['bssid']] = list()
 					# The heat map rendering logic will treat repetitive mentions of the same location
 					# as an indication that the value for that location is higher.  In practical terms this means
@@ -83,10 +86,16 @@ else:
 						else:
 							locations[location]=1
 					if (locations[location] == 1) or options.allData:
-						accesspoints[dict['bssid']].append((float(dict['lon']),float(dict['lat']),100+float(dict['signal_dbm'])))
+						if options.mergeTo is None:
+							accesspoints[dict['bssid']].append((float(dict['lon']),float(dict['lat']),100+float(dict['signal_dbm'])))
+						else:
+							accesspoints[options.mergeTo].append((float(dict['lon']),float(dict['lat']),100+float(dict['signal_dbm'])))
 
 	for key in accesspoints:
-		print networks[key]
+		if options.mergeTo is None:
+			print networks[key]
+		else:
+			print options.mergeTo
 		hm = heatmap.Heatmap()
 		try:
 			hm.heatmap(accesspoints[key],'%s.png'%key)
@@ -94,4 +103,7 @@ else:
 			print "Error generating map overlay - data sample too small"
 		except IndexError:
 			print "Error generating map overlay - data sample too small"
-		hm.saveKML('%s.kml'%networks[key])
+		if options.mergeTo is None:
+			hm.saveKML('%s.kml'%networks[key])
+		else:
+			hm.saveKML('%s.kml'%options.mergeTo)
