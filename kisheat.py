@@ -6,6 +6,7 @@ import xml.etree.ElementTree
 import re
 from xml.etree.ElementTree import ElementTree
 from optparse import OptionParser
+from os.path import basename
 
 
 def splitup(stringthing):
@@ -39,7 +40,7 @@ essidRE = re.compile(matchEssid)
 tree = ElementTree()
 accesspoints = {}
 networks = {}
-
+datasetName = basename(args[0])
 tree.parse(args[0]+'.netxml')
 
 for network in tree.getroot().findall('wireless-network'):
@@ -104,6 +105,6 @@ else:
 		except IndexError:
 			print "Error generating map overlay - data sample too small"
 		if options.mergeTo is None:
-			hm.saveKML('%s.kml'%networks[key])
+			hm.saveKML('%(dataset)s-%(network)s.kml'% {'dataset' : datasetName, 'network': networks[key]})
 		else:
-			hm.saveKML('%s.kml'%options.mergeTo)
+			hm.saveKML('%(dataset)s-%(network)s.kml'% {'dataset' : datasetName, 'network': options.mergeTo})
